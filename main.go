@@ -17,32 +17,17 @@ type Item struct {
 	title   string
 }
 
-// Helper function to pull the href attribute from a Token
+// Helper function to pull the 'href' attribute from a Token
 func getHref(t html.Token) (ok bool, href string) {
-	// Iterate over all of the Token's attributes until we find an "href"
 	for _, a := range t.Attr {
 		if a.Key == "href" {
 			href = a.Val
 			ok = true
 		}
 	}
-
-	// "bare" return will return the variables (ok, href) as defined in
-	// the function definition
 	return
 }
-
-func getItemId(t html.Token) (ok bool, id string) {
-	for _, a := range t.Attr {
-		if a.Key == "title" {
-			id = a.Val
-			ok = true
-			break
-		}
-	}
-	return
-}
-
+// Helper function to pull the 'src' attribute from Token
 func getImgSrc(t html.Token) (ok bool, src string) {
 	for _, a := range t.Attr {
 		if a.Key == "src" {
@@ -53,7 +38,7 @@ func getImgSrc(t html.Token) (ok bool, src string) {
 	}
 	return
 }
-
+// Helper function to pull the 'title' attribute from Token
 func getTitle(t html.Token) (ok bool, title string) {
 	for _, a := range t.Attr {
 		if a.Key == "title" {
@@ -65,7 +50,7 @@ func getTitle(t html.Token) (ok bool, title string) {
 	return
 }
 
-// Extract all http** links from a given webpage
+// Extract all items of interest from a given webpage
 func crawl(url string, ch chan Item, chFinished chan bool) {
 	resp, err := http.Get(url)
 
@@ -114,7 +99,7 @@ func crawl(url string, ch chan Item, chFinished chan bool) {
 
 			// check if at the beginning of interest's area
 			if t.DataAtom == atom.Span {
-				ok, id := getItemId(t)
+				ok, id := getTitle(t)
 				if !ok {
 					continue
 				}
@@ -136,7 +121,7 @@ func crawl(url string, ch chan Item, chFinished chan bool) {
 					item.title = title
 				}
 
-				// Make sure the url begines in http**
+				// Make sure the url begins in http**
 				hasProto := strings.Index(url, "http") == 0
 				if hasProto {
 					ch <- item
@@ -173,11 +158,10 @@ func main() {
 	}
 
 	// We're done! Print the results...
-
-	fmt.Println("\nFound", len(foundItems), "unique urls:\n")
+	fmt.Printf("\nFound %d unique items:\n", len(foundItems))
 
 	for _, item := range foundItems {
-		fmt.Printf("%s, %s, %s \n", item.id, item.pageUrl, item.title)
+		fmt.Printf("%s, %s, %s\n", item.id, item.pageUrl, item.title)
 	}
 
 	close(chItems)
