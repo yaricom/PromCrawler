@@ -144,6 +144,7 @@ func main() {
 
 	// Kick off the crawl process (concurrently)
 	for _, url := range seedUrls {
+		fmt.Printf("\nSeed %s\n", url)
 		go crawl(url, chItems, chFinished)
 	}
 
@@ -161,7 +162,7 @@ func main() {
 	fmt.Printf("\nFound %d unique items:\n", len(foundItems))
 
 	for _, item := range foundItems {
-		fmt.Printf("%s, %s, %s\n", item.id, item.pageUrl, item.title)
+		fmt.Printf("%s; %s; %s\n", item.id, item.pageUrl, item.title)
 	}
 
 	close(chItems)
