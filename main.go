@@ -142,6 +142,11 @@ func main() {
 	chItems := make(chan Item)
 	chFinished := make(chan bool)
 
+	defer func() {
+		close(chItems)
+		close(chFinished)
+	} ()
+
 	// Kick off the crawl process (concurrently)
 	for _, url := range seedUrls {
 		go crawl(url, chItems, chFinished)
@@ -163,6 +168,4 @@ func main() {
 	for _, item := range foundItems {
 		fmt.Printf("%s, %s, %s\n", item.id, item.pageUrl, item.title)
 	}
-
-	close(chItems)
 }
